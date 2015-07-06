@@ -264,7 +264,8 @@ public class WxMpServiceImpl implements WxMpService {
      * 查询时返回的是 { groups : [ { id : ..., name : ..., count : ... }, ... ] }
      */
     JsonElement tmpJsonElement = Streams.parse(new JsonReader(new StringReader(responseContent)));
-    return WxMpGsonBuilder.INSTANCE.create().fromJson(tmpJsonElement.getAsJsonObject().get("groups"), new TypeToken<List<WxMpGroup>>(){}.getType());
+    return WxMpGsonBuilder.INSTANCE.create().fromJson(tmpJsonElement.getAsJsonObject().get("groups"), new TypeToken<List<WxMpGroup>>() {
+    }.getType());
   }
   
   public long userGetGroup(String openid) throws WxErrorException {
@@ -380,12 +381,10 @@ public class WxMpServiceImpl implements WxMpService {
     return WxMpSemanticQueryResult.fromJson(responseContent);
   }
 
-  @Override
   public String oauth2buildAuthorizationUrl(String scope, String state) {
     return this.oauth2buildAuthorizationUrl(wxMpConfigStorage.getOauth2redirectUri(), scope, state);
   }
 
-  @Override
   public String oauth2buildAuthorizationUrl(String redirectURI, String scope, String state) {
     String url = "https://open.weixin.qq.com/connect/oauth2/authorize?" ;
     url += "appid=" + wxMpConfigStorage.getAppId();
@@ -399,7 +398,6 @@ public class WxMpServiceImpl implements WxMpService {
     return url;
   }
 
-  @Override
   public WxMpOAuth2AccessToken oauth2getAccessToken(String code) throws WxErrorException {
     String url = "https://api.weixin.qq.com/sns/oauth2/access_token?";
     url += "appid=" +  wxMpConfigStorage.getAppId();
@@ -418,7 +416,6 @@ public class WxMpServiceImpl implements WxMpService {
     }
   }
 
-  @Override
   public WxMpOAuth2AccessToken oauth2refreshAccessToken(String refreshToken) throws WxErrorException {
     String url = "https://api.weixin.qq.com/sns/oauth2/refresh_token?";
     url += "appid=" + wxMpConfigStorage.getAppId();
@@ -436,7 +433,6 @@ public class WxMpServiceImpl implements WxMpService {
     }
   }
 
-  @Override
   public WxMpUser oauth2getUserInfo(WxMpOAuth2AccessToken oAuth2AccessToken, String lang) throws WxErrorException {
     String url = "https://api.weixin.qq.com/sns/userinfo?";
     url += "access_token=" + oAuth2AccessToken.getAccessToken();
@@ -458,7 +454,6 @@ public class WxMpServiceImpl implements WxMpService {
     }
   }
 
-  @Override
   public boolean oauth2validateAccessToken(WxMpOAuth2AccessToken oAuth2AccessToken) {
     String url = "https://api.weixin.qq.com/sns/auth?";
     url += "access_token=" + oAuth2AccessToken.getAccessToken();
@@ -477,7 +472,6 @@ public class WxMpServiceImpl implements WxMpService {
     return true;
   }
 
-  @Override
   public String[] getCallbackIP() throws WxErrorException {
     String url = "https://api.weixin.qq.com/cgi-bin/getcallbackip";
     String responseContent = get(url, null);
@@ -491,7 +485,6 @@ public class WxMpServiceImpl implements WxMpService {
   }
 
 
-  @Override
   public List<WxMpUserSummary> getUserSummary(Date beginDate, Date endDate) throws WxErrorException {
     String url = "https://api.weixin.qq.com/datacube/getusersummary";
     JsonObject param = new JsonObject();
@@ -502,7 +495,6 @@ public class WxMpServiceImpl implements WxMpService {
     return WxMpGsonBuilder.INSTANCE.create().fromJson(tmpJsonElement.getAsJsonObject().get("list"), new TypeToken<List<WxMpUserSummary>>(){}.getType());
   }
 
-  @Override
   public List<WxMpUserCumulate> getUserCumulate(Date beginDate, Date endDate) throws WxErrorException {
     String url = "https://api.weixin.qq.com/datacube/getusercumulate";
     JsonObject param = new JsonObject();
@@ -511,6 +503,48 @@ public class WxMpServiceImpl implements WxMpService {
     String responseContent = post(url, param.toString());
     JsonElement tmpJsonElement = Streams.parse(new JsonReader(new StringReader(responseContent)));
     return WxMpGsonBuilder.INSTANCE.create().fromJson(tmpJsonElement.getAsJsonObject().get("list"), new TypeToken<List<WxMpUserCumulate>>(){}.getType());
+  }
+
+  public List<WxMpKf> getKfList()throws WxErrorException {
+    String url = "https://api.weixin.qq.com/cgi-bin/customservice/getkflist";
+    String responseContent = get(url, null);
+    JsonElement tmpJsonElement = Streams.parse(new JsonReader(new StringReader(responseContent)));
+    return WxMpGsonBuilder.INSTANCE.create().fromJson(tmpJsonElement.getAsJsonObject().get("kf_list"), new TypeToken<List<WxMpKf>>(){}.getType());
+  }
+
+  public List<WxMpOnlineKf> getOnlineKfList()throws WxErrorException {
+    String url = "https://api.weixin.qq.com/cgi-bin/customservice/getonlinekflist";
+    String responseContent = get(url, null);
+    JsonElement tmpJsonElement = Streams.parse(new JsonReader(new StringReader(responseContent)));
+    return WxMpGsonBuilder.INSTANCE.create().fromJson(tmpJsonElement.getAsJsonObject().get("kf_online_list"), new TypeToken<List<WxMpOnlineKf>>(){}.getType());
+  }
+
+  public void kfAccountAdd(String kfAccount, String nickname, String password) throws WxErrorException {
+    String url = "https://api.weixin.qq.com/customservice/kfaccount/add";
+    JsonObject json = new JsonObject();
+    json.addProperty("kf_account", kfAccount);
+    json.addProperty("nickname", nickname);
+    json.addProperty("password", password);
+    execute(new SimplePostRequestExecutor(), url, json.toString());
+  }
+
+  public void kfAccountUpdate(String kfAccount, String nickname, String password) throws WxErrorException {
+    String url = "https://api.weixin.qq.com/customservice/kfaccount/update";
+    JsonObject json = new JsonObject();
+    json.addProperty("kf_account", kfAccount);
+    json.addProperty("nickname", nickname);
+    json.addProperty("password", password);
+    execute(new SimplePostRequestExecutor(), url, json.toString());
+  }
+
+  public void kfAccountDel(String kfAccount) throws WxErrorException {
+    String url = "https://api.weixin.qq.com/customservice/kfaccount/del?kf_account="+kfAccount;
+    execute(new SimpleGetRequestExecutor(), url, null);
+  }
+
+  public void kfAccountUploadHeadImg(String kfAccount, File file) throws WxErrorException {
+    String url = "https://api.weixin.qq.com/customservice/kfaccount/uploadheadimg?kf_account="+kfAccount;
+    execute(new MediaUploadRequestExecutor(), url, file);
   }
 
   public String get(String url, String queryParam) throws WxErrorException {
@@ -621,18 +655,14 @@ public class WxMpServiceImpl implements WxMpService {
     }
   }
 
-  @Override
   public void setRetrySleepMillis(int retrySleepMillis) {
     this.retrySleepMillis = retrySleepMillis;
   }
 
-
-  @Override
   public void setMaxRetryTimes(int maxRetryTimes) {
     this.maxRetryTimes = maxRetryTimes;
   }
 
-  @Override
   public WxMpPrepayIdResult getPrepayId(String openId, String outTradeNo, double amt, String body, String tradeType, String ip, String callbackUrl) {
     String nonce_str = System.currentTimeMillis() + "";
 
@@ -685,7 +715,6 @@ public class WxMpServiceImpl implements WxMpService {
     return new WxMpPrepayIdResult();
   }
 
-  @Override
   public Map<String, String> getJSSDKPayInfo(String openId, String outTradeNo, double amt, String body, String tradeType, String ip, String callbackUrl) {
     WxMpPrepayIdResult wxMpPrepayIdResult = getPrepayId(openId, outTradeNo, amt, body, tradeType, ip, callbackUrl);
     String prepayId = wxMpPrepayIdResult.getPrepay_id();

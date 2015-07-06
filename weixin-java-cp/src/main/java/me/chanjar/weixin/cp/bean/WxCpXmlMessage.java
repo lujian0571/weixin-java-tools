@@ -193,6 +193,7 @@ public class WxCpXmlMessage implements Serializable {
    * {@link me.chanjar.weixin.common.api.WxConsts#XML_MSG_IMAGE}
    * {@link me.chanjar.weixin.common.api.WxConsts#XML_MSG_VOICE}
    * {@link me.chanjar.weixin.common.api.WxConsts#XML_MSG_VIDEO}
+   * {@link me.chanjar.weixin.common.api.WxConsts#XML_MSG_SHORTVIDEO}
    * {@link me.chanjar.weixin.common.api.WxConsts#XML_MSG_LOCATION}
    * {@link me.chanjar.weixin.common.api.WxConsts#XML_MSG_LINK}
    * {@link me.chanjar.weixin.common.api.WxConsts#XML_MSG_EVENT}
