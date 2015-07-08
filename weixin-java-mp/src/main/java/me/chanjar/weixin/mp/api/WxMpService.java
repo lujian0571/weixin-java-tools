@@ -485,6 +485,72 @@ public interface WxMpService {
   List<WxMpUserCumulate> getUserCumulate(Date beginDate, Date endDate) throws WxErrorException;
 
   /**
+   * <pre>
+   * 获取客服列表
+   * http://mp.weixin.qq.com/wiki/9/6fff6f191ef92c126b043ada035cc935.html
+   * </pre>
+   * @return
+   * @throws WxErrorException
+   */
+  List<WxMpKf> getKfList()throws WxErrorException;
+
+  /**
+   * <pre>
+   * 获取在线客服列表
+   * http://mp.weixin.qq.com/wiki/9/6fff6f191ef92c126b043ada035cc935.html
+   * </pre>
+   * @return
+   * @throws WxErrorException
+   */
+  List<WxMpOnlineKf> getOnlineKfList()throws WxErrorException;
+
+  /**
+   * <pre>
+   * 添加客服
+   * http://mp.weixin.qq.com/wiki/9/6fff6f191ef92c126b043ada035cc935.html
+   * </pre>
+   * @param kfAccount
+   * @param nickname
+   * @param password
+   * @throws WxErrorException
+   */
+  void kfAccountAdd(String kfAccount, String nickname, String password) throws WxErrorException;
+
+  /**
+   * <pre>
+   * 更新客服信息
+   * http://mp.weixin.qq.com/wiki/9/6fff6f191ef92c126b043ada035cc935.html
+   * </pre>
+   * @param kfAccount
+   * @param nickname
+   * @param password
+   * @throws WxErrorException
+   */
+  void kfAccountUpdate(String kfAccount, String nickname, String password) throws WxErrorException;
+
+  /**
+   * <pre>
+   * 删除客服
+   * http://mp.weixin.qq.com/wiki/9/6fff6f191ef92c126b043ada035cc935.html
+   * </pre>
+   * @param kfAccount
+   * @throws WxErrorException
+   */
+  void kfAccountDel(String kfAccount) throws WxErrorException;
+
+  /**
+   * <pre>
+   * 更新客服头像
+   * http://mp.weixin.qq.com/wiki/9/6fff6f191ef92c126b043ada035cc935.html
+   * </pre>
+   * @param kfAccount
+   * @param file
+   * @throws WxErrorException
+   */
+  void kfAccountUploadHeadImg(String kfAccount, File file) throws WxErrorException;
+
+
+  /**
    * 当本Service没有实现某个API的时候，可以用这个，针对所有微信API中的GET请求
    * @param url
    * @param queryParam
