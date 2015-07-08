@@ -24,7 +24,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
  */
 public class MediaUploadRequestExecutor implements RequestExecutor<WxMediaUploadResult, File> {
 
-  @Override
   public WxMediaUploadResult execute(CloseableHttpClient httpclient, HttpHost httpProxy, String uri, File file) throws WxErrorException, ClientProtocolException, IOException {
     HttpPost httpPost = new HttpPost(uri);
     if (httpProxy != null) {
