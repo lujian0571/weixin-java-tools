@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.internal.Streams;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
-import com.thoughtworks.xstream.XStream;
 
 import me.chanjar.weixin.common.bean.WxAccessToken;
 import me.chanjar.weixin.common.bean.WxMenu;
@@ -23,13 +22,11 @@ import me.chanjar.weixin.common.util.crypto.WxCryptUtil;
 import me.chanjar.weixin.common.util.fs.FileUtils;
 import me.chanjar.weixin.common.util.http.*;
 import me.chanjar.weixin.common.util.json.GsonHelper;
-import me.chanjar.weixin.common.util.xml.XStreamInitializer;
 import me.chanjar.weixin.mp.bean.*;
 import me.chanjar.weixin.mp.bean.result.*;
 import me.chanjar.weixin.mp.util.http.QrCodeRequestExecutor;
 import me.chanjar.weixin.mp.util.json.WxMpGsonBuilder;
 
-import org.apache.http.Consts;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -38,8 +35,6 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -51,7 +46,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.math.BigDecimal;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
@@ -205,7 +199,7 @@ public class WxMpServiceImpl implements WxMpService {
   }
 
   public WxMediaUploadResult mediaUpload(String mediaType, String fileType, InputStream inputStream) throws WxErrorException, IOException {
-    return mediaUpload(mediaType,FileUtils.createTmpFile(inputStream, UUID.randomUUID().toString(), fileType));
+    return mediaUpload(mediaType, FileUtils.createTmpFile(inputStream, UUID.randomUUID().toString(), fileType));
   }
   
   public WxMediaUploadResult mediaUpload(String mediaType, File file) throws WxErrorException {
@@ -250,9 +244,9 @@ public class WxMpServiceImpl implements WxMpService {
     groupJson.addProperty("name", name);
     
     String responseContent = execute(
-        new SimplePostRequestExecutor(), 
-        url, 
-        json.toString());
+            new SimplePostRequestExecutor(),
+            url,
+            json.toString());
     return WxMpGroup.fromJson(responseContent);
   }
 
@@ -663,9 +657,8 @@ public class WxMpServiceImpl implements WxMpService {
     this.maxRetryTimes = maxRetryTimes;
   }
 
-  public WxMpPrepayIdResult getPrepayId(String openId, String outTradeNo, double amt, String body, String tradeType, String ip, String callbackUrl) {
+  public WxMpPayUnifiedOrderResult payUnifiedOrder(String openId, String outTradeNo, double amt, String body, String tradeType, String ip, String callbackUrl) throws WxErrorException{
     String nonce_str = System.currentTimeMillis() + "";
-
     SortedMap<String, String> packageParams = new TreeMap<String, String>();
     packageParams.put("appid", wxMpConfigStorage.getAppId());
     packageParams.put("mch_id", wxMpConfigStorage.getPartnerId());
@@ -680,44 +673,25 @@ public class WxMpServiceImpl implements WxMpService {
     packageParams.put("openid", openId);
 
     String sign = WxCryptUtil.createSign(packageParams, wxMpConfigStorage.getPartnerKey());
-    String xml = "<xml>" +
-            "<appid>" + wxMpConfigStorage.getAppId() + "</appid>" +
-            "<mch_id>" + wxMpConfigStorage.getPartnerId() + "</mch_id>" +
-            "<nonce_str>" + nonce_str + "</nonce_str>" +
-            "<sign>" + sign + "</sign>" +
-            "<body><![CDATA[" + body + "]]></body>" +
-            "<out_trade_no>" + outTradeNo + "</out_trade_no>" +
-            "<total_fee>" + packageParams.get("total_fee") + "</total_fee>" +
-            "<spbill_create_ip>" + ip + "</spbill_create_ip>" +
-            "<notify_url>" + callbackUrl + "</notify_url>" +
-            "<trade_type>" + tradeType + "</trade_type>" +
-            "<openid>" + openId + "</openid>" +
-            "</xml>";
-
-    HttpPost httpPost = new HttpPost("https://api.mch.weixin.qq.com/pay/unifiedorder");
-    if (httpProxy != null) {
-      RequestConfig config = RequestConfig.custom().setProxy(httpProxy).build();
-      httpPost.setConfig(config);
-    }
-
-    StringEntity entity = new StringEntity(xml, Consts.UTF_8);
-    httpPost.setEntity(entity);
-    try {
-      CloseableHttpResponse response = getHttpclient().execute(httpPost);
-      String responseContent = Utf8ResponseHandler.INSTANCE.handleResponse(response);
-      XStream xstream = XStreamInitializer.getInstance();
-      xstream.alias("xml", WxMpPrepayIdResult.class);
-      WxMpPrepayIdResult wxMpPrepayIdResult = (WxMpPrepayIdResult) xstream.fromXML(responseContent);
-      return wxMpPrepayIdResult;
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    return new WxMpPrepayIdResult();
+    String  url = "https://api.mch.weixin.qq.com/pay/unifiedorder";
+    WxMpPayUnifiedOrder wxMpPayUnifiedOrder = new WxMpPayUnifiedOrder();
+    wxMpPayUnifiedOrder.setAppid(wxMpConfigStorage.getAppId());
+    wxMpPayUnifiedOrder.setMchId(wxMpConfigStorage.getPartnerId());
+    wxMpPayUnifiedOrder.setNonceStr(nonce_str);
+    wxMpPayUnifiedOrder.setSign(sign);
+    wxMpPayUnifiedOrder.setBody(body);
+    wxMpPayUnifiedOrder.setOutTradeNo(outTradeNo);
+    wxMpPayUnifiedOrder.setTotalFee(Integer.parseInt(packageParams.get("total_fee")));
+    wxMpPayUnifiedOrder.setSpbillCreateIp(ip);
+    wxMpPayUnifiedOrder.setNotifyUrl(callbackUrl);
+    wxMpPayUnifiedOrder.setOpenid(openId);
+    String responseContent = execute(new SimplePostRequestExecutor(), url, wxMpPayUnifiedOrder.toXml());
+    return WxMpPayUnifiedOrderResult.fromJson(responseContent);
   }
 
-  public Map<String, String> getJSSDKPayInfo(String openId, String outTradeNo, double amt, String body, String tradeType, String ip, String callbackUrl) {
-    WxMpPrepayIdResult wxMpPrepayIdResult = getPrepayId(openId, outTradeNo, amt, body, tradeType, ip, callbackUrl);
-    String prepayId = wxMpPrepayIdResult.getPrepay_id();
+  public Map<String, String> getJSSDKPayInfo(String openId, String outTradeNo, double amt, String body, String tradeType, String ip, String callbackUrl) throws WxErrorException{
+    WxMpPayUnifiedOrderResult wxMpPrepayIdResult = payUnifiedOrder(openId, outTradeNo, amt, body, tradeType, ip, callbackUrl);
+    String prepayId = wxMpPrepayIdResult.getPrepayId();
     if (prepayId == null || prepayId.equals("")) {
         throw new RuntimeException("get prepayid error");
     }
@@ -733,5 +707,28 @@ public class WxMpServiceImpl implements WxMpService {
     String finalSign = WxCryptUtil.createSign(payInfo, wxMpConfigStorage.getPartnerKey());
     payInfo.put("sign", finalSign);
     return payInfo;
+  }
+
+  public WxMpPayOrderResult payOrderQuery(String transactionId, String outTradeNo) throws WxErrorException{
+    String nonce_str = System.currentTimeMillis() + "";
+
+    SortedMap<String, String> packageParams = new TreeMap<String, String>();
+    packageParams.put("appid", wxMpConfigStorage.getAppId());
+    packageParams.put("mch_id", wxMpConfigStorage.getPartnerId());
+    packageParams.put("transaction_id", transactionId);
+    packageParams.put("out_trade_no", outTradeNo);
+    packageParams.put("nonce_str", nonce_str);
+
+    String  url = "https://api.mch.weixin.qq.com/pay/orderquery";
+    String sign = WxCryptUtil.createSign(packageParams, wxMpConfigStorage.getPartnerKey());
+    WxMpPayOrderQuery wxMpPayOrderQuery = new WxMpPayOrderQuery();
+    wxMpPayOrderQuery.setAppid(wxMpConfigStorage.getAppId());
+    wxMpPayOrderQuery.setMchId(wxMpConfigStorage.getPartnerId());
+    wxMpPayOrderQuery.setTransactionId(transactionId);
+    wxMpPayOrderQuery.setOutTradeNo(outTradeNo);
+    wxMpPayOrderQuery.setNonceStr(nonce_str);
+    wxMpPayOrderQuery.setSign(sign);
+    String responseContent = execute(new SimplePostRequestExecutor(), url, wxMpPayOrderQuery.toXml());
+    return WxMpPayOrderResult.fromXml(responseContent);
   }
 }
