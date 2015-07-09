@@ -110,10 +110,27 @@ public class WxMpPayOrderResult {
     @XStreamConverter(value=XStreamCDataConverter.class)
     private String timeEnd;
 
+    /**
+     * 该参数仅查询订单返回使用
+     */
     @XStreamAlias("trade_state_desc")
     @XStreamConverter(value=XStreamCDataConverter.class)
     private String tradeStateDesc;
 
+    /**
+     * 该参数仅查询订单返回使用
+     */
+    @XStreamAlias("trade_state")
+    @XStreamConverter(value=XStreamCDataConverter.class)
+    private String tradeState;
+
+    public String getTradeState() {
+        return tradeState;
+    }
+
+    public void setTradeState(String tradeState) {
+        this.tradeState = tradeState;
+    }
 
     public String getReturnCode() {
         return returnCode;
