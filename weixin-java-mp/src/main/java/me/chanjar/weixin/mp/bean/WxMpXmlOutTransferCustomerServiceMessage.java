@@ -8,12 +8,13 @@ import me.chanjar.weixin.common.util.xml.XStreamCDataConverter;
 /**
  * Created by lujian on 2015/7/5.
  */
-public class WxXmlOutTransferCustomerServiceMessage extends WxMpXmlOutMessage {
+@XStreamAlias("xml")
+public class WxMpXmlOutTransferCustomerServiceMessage extends WxMpXmlOutMessage {
 
     @XStreamAlias("TransInfo")
     protected final TransInfo transInfo = new TransInfo();
 
-    public WxXmlOutTransferCustomerServiceMessage() {
+    public WxMpXmlOutTransferCustomerServiceMessage() {
         this.msgType = WxConsts.XML_TRANSFER_CUSTOMER_SERVICE;
     }
     public String getKfAccount() {
