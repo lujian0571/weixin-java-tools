@@ -541,6 +541,15 @@ public class WxMpServiceImpl implements WxMpService {
     execute(new MediaUploadRequestExecutor(), url, file);
   }
 
+  public void kfSessionCreate(String kfAccount, String openid, String text) throws WxErrorException{
+    String url = "https://api.weixin.qq.com/customservice/kfsession/create";
+    JsonObject json = new JsonObject();
+    json.addProperty("kf_account", kfAccount);
+    json.addProperty("openid", openid);
+    json.addProperty("text", text);
+    execute(new SimplePostRequestExecutor(), url, json.toString());
+  }
+
   public String get(String url, String queryParam) throws WxErrorException {
     return execute(new SimpleGetRequestExecutor(), url, queryParam);
   }

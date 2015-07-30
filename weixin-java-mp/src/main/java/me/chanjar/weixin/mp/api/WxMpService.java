@@ -594,6 +594,15 @@ public interface WxMpService {
      */
     void kfAccountUploadHeadImg(String kfAccount, File file) throws WxErrorException;
 
+    /**
+     * 创建会话
+     * @param kfAccount
+     * @param openid
+     * @param text
+     * @throws WxErrorException
+     */
+    void kfSessionCreate(String kfAccount, String openid, String text) throws WxErrorException;
+
 
     /**
      * 当本Service没有实现某个API的时候，可以用这个，针对所有微信API中的GET请求
